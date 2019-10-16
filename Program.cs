@@ -11,6 +11,11 @@ public class Customer
     public double Balance { get; set; }
     public string Bank { get; set; }
 }
+public class Bank
+{
+    public string Symbol { get; set; }
+    public string Name { get; set; }
+}
     class Program {
         static void Main (string[] args) {
             Console.WriteLine ();
@@ -211,7 +216,13 @@ public class Customer
             Console.WriteLine ();
             Console.WriteLine ("Exercise 9");
             Console.WriteLine ("-----------------------------------------------------------------------------");
-
+        // Create some banks and store in a List
+        List<Bank> banks = new List<Bank>() {
+            new Bank(){ Name="First Tennessee", Symbol="FTB"},
+            new Bank(){ Name="Wells Fargo", Symbol="WF"},
+            new Bank(){ Name="Bank of America", Symbol="BOA"},
+            new Bank(){ Name="Citibank", Symbol="CITI"},
+        };
             List<Customer> customers = new List<Customer> () {
                 new Customer () { Name = "Bob Lesman", Balance = 80345.66, Bank = "FTB" },
                 new Customer () { Name = "Joe Landy", Balance = 9284756.21, Bank = "WF" },
@@ -226,7 +237,7 @@ public class Customer
             };
 
             // Another way to do GroupBy (another overload). Adam recommends this way.
-            var report = customers
+            var reports = customers
                 .Where (c => c.Balance >= 1000000)
                 .GroupBy (c => c.Bank)
                 .Select (group => {
@@ -234,20 +245,25 @@ public class Customer
                     BankName = group.Key,
                     MillionaireCount = group.Count ()
                     };
+                 
                 });
-
-            List<ReportItem> millionaireReport = millionaires.Join (
+               foreach (var report in reports){
+                        Console.WriteLine(report.BankName);
+                    }
+            List<Customer> millionaires = customers.Where(customer => customer.Balance >= 1000000).ToList();
+            var millionaireReport = millionaires.Join (
                 banks,
                 millionaire => millionaire.Bank,
                 bank => bank.Symbol,
                 (millionaire, bank) =>
-                new ReportItem {
+                // this is an annomous object so we don't have to create a class.
+                new {
                     CustomerName = millionaire.Name,
                         BankName = bank.Name
                 }
             ).ToList ();
 
-            millionaireReport.OrderBy (ReportItem => ReportItem.CustomerName.Split (" ").Last ());
+           millionaireReport.OrderBy (ReportItem => ReportItem.CustomerName.Split (" ").Last ());
 
         }
     }
